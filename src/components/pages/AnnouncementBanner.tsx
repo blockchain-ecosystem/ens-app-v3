@@ -55,7 +55,7 @@ export const AnnouncementBanner = () => {
     <Link href="/ens-v2" legacyBehavior passHref>
       <Container>
         <TextContainer>
-          <Image src="/migrate/confetti.png" alt="" width={33} height={33} />
+          <Image src="/migrate/confetti.png" alt="" width={33} height={33} priority />
           <Text>
             <Typography fontVariant="largeBold">{t('banner.title')}</Typography>
             <Typography fontVariant="small" color="grey">

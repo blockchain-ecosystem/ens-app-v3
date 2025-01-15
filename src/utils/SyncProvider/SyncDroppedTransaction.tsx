@@ -190,7 +190,10 @@ export const findDroppedTransactions = async (
 
       // If there is a gap between account nonce and latest nonce in history
       // it is possible that etherscan history is behind
-      if (currentNonce - parseInt(accountTransactionHistory[0].nonce, 10) > 1) {
+      if (
+        accountTransactionHistory?.[0]?.nonce &&
+        currentNonce - parseInt(accountTransactionHistory[0].nonce, 10) > 1
+      ) {
         // Wait for etherscan history to update
         return
       }
