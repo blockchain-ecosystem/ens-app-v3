@@ -8,7 +8,7 @@ import { matchQueryKeyMeta } from './matchQueryKeyMeta'
 const params = {
   internalParams: {
     functionParams: { param1: 'value1', param2: 'value2' },
-    chainId: 1,
+    chainId: 398,
     address: '0x123',
     scopeKey: 'scopeKey',
     functionName: 'getSomething',

@@ -10,6 +10,8 @@ import { HardhatUserConfig } from 'hardhat/config'
 const ensContractsPath = './node_modules/@ensdomains/ens-contracts'
 
 console.log(resolve(ensContractsPath, 'artifacts'))
+const DEPLOYER_KEY = process.env.DEPLOYER_KEY || '';
+const OWNER_KEY = process.env.OWNER_KEY || '';
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -27,24 +29,14 @@ const config: HardhatUserConfig = {
   },
   defaultNetwork: 'localhost',
   networks: {
-    hardhat: {
+    
+    custom: {
       saveDeployments: false,
-      chainId: 1337,
-      accounts: {
-        mnemonic: process.env.SECRET_WORDS!,
-      },
+      url: process.env.NEXT_PUBLIC_CUSTOM_NETWORK_RPC,
+      chainId: 398,
+      accounts: [`0x${DEPLOYER_KEY}`, `0x${OWNER_KEY}`],
       live: false,
-      tags: ['test', 'legacy', 'use_root'],
-    },
-    localhost: {
-      saveDeployments: false,
-      url: 'http://localhost:8545',
-      chainId: 1337,
-      accounts: {
-        mnemonic: process.env.SECRET_WORDS!,
-      },
-      live: false,
-      tags: ['test', 'legacy', 'use_root'],
+      tags: ['legacy', 'use_root'],
     },
   },
   // namedAccounts: {
@@ -60,7 +52,7 @@ const config: HardhatUserConfig = {
       default: 1,
     },
     owner2: {
-      default: 2,
+      default: 1,
     },
   },
   external: {

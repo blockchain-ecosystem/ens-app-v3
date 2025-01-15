@@ -105,7 +105,7 @@ describe('requestWithSafeOverride', () => {
     })
 
     expect(mockFetchTxFromSafeTxHash).toHaveBeenCalledWith({
-      chainId: 1,
+      chainId: 398,
       safeTxHash: SAFE_TX_HASH,
     })
 

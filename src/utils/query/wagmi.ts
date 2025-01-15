@@ -5,6 +5,7 @@ import { holesky, localhost, mainnet, sepolia } from 'wagmi/chains'
 import { ccipRequest } from '@ensdomains/ensjs/utils'
 
 import {
+  customWithEns,
   holeskyWithEns,
   localhostWithEns,
   mainnetWithEns,
@@ -82,8 +83,16 @@ const localStorageWithInvertMiddleware = (): Storage | undefined => {
     },
   }
 }
+export const customUrl = (chainName: string) => {
+  if (chainName === 'custom') {
+    const customNetworkRpc = process.env.NEXT_PUBLIC_CUSTOM_NETWORK_RPC || ''
+    return customNetworkRpc.startsWith('http') ? customNetworkRpc : `http://${customNetworkRpc}`
+  }
+  return ''
+}
 
 const chains = [
+  customWithEns,
   ...(isLocalProvider ? ([localhostWithEns] as const) : ([] as const)),
   mainnetWithEns,
   sepoliaWithEns,
@@ -96,9 +105,9 @@ const transports = {
         [localhost.id]: http(process.env.NEXT_PUBLIC_PROVIDER!) as unknown as FallbackTransport,
       } as const)
     : ({} as unknown as {
-        // this is a hack to make the types happy, dont remove pls
         [localhost.id]: HttpTransport
       })),
+  [customWithEns.id]: initialiseTransports('custom', [customUrl]),
   [mainnet.id]: initialiseTransports('mainnet', [drpcUrl, infuraUrl, tenderlyUrl]),
   [sepolia.id]: initialiseTransports('sepolia', [drpcUrl, infuraUrl, tenderlyUrl]),
   [holesky.id]: initialiseTransports('holesky', [drpcUrl, tenderlyUrl]),

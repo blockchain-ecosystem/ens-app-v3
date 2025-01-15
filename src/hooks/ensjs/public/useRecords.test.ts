@@ -18,7 +18,7 @@ describe('matchGetRecordsQueryKeyWithInternalParams', () => {
         name: 'test',
       },
       address: '0x123',
-      chainId: 1,
+      chainId: 398,
       scopeKey: undefined,
     } as const
     const matchKey = [
@@ -44,7 +44,7 @@ describe('matchGetRecordsQueryKeyWithInternalParams', () => {
         resolver: { address: '0x123' },
       },
       address: '0x123',
-      chainId: 1,
+      chainId: 398,
       scopeKey: undefined,
     } as const
     const matchKey = [
@@ -71,7 +71,7 @@ describe('matchGetRecordsQueryKeyWithInternalParams', () => {
         gatewayUrls: ['test'] as string[],
       },
       address: '0x123',
-      chainId: 1,
+      chainId: 398,
       scopeKey: undefined,
     } as const
     const matchKey = [
@@ -97,7 +97,7 @@ describe('matchGetRecordsQueryKeyWithInternalParams', () => {
         name: 'test',
       },
       address: '0x123',
-      chainId: 1,
+      chainId: 398,
       scopeKey: undefined,
     } as const
     const matchKey = [
@@ -123,7 +123,7 @@ describe('matchGetRecordsQueryKeyWithInternalParams', () => {
         resolver: { address: '0x123' },
       },
       address: '0x123',
-      chainId: 1,
+      chainId: 398,
       scopeKey: undefined,
     } as const
     const matchKey = [
@@ -150,7 +150,7 @@ describe('matchGetRecordsQueryKeyWithInternalParams', () => {
         gatewayUrls: ['test'] as string[],
       },
       address: '0x123',
-      chainId: 1,
+      chainId: 398,
       scopeKey: undefined,
     } as const
     const matchKey = [
@@ -194,7 +194,7 @@ const mockUseQueryOptions = vi.mocked(useQueryOptions).mockImplementation(
   }) => {
     return {
       queryKey: createQueryKey({
-        chainId: 1,
+        chainId: 398,
         address: '0x123',
         params,
         scopeKey,
@@ -280,7 +280,7 @@ describe('useRecords', () => {
 
     queryClient.setQueryData(
       createQueryKey({
-        chainId: 1,
+        chainId: 398,
         address: '0x123',
         params: {
           name: 'test',
@@ -314,7 +314,7 @@ describe('useRecords', () => {
 
     queryClient.setQueryData(
       createQueryKey({
-        chainId: 1,
+        chainId: 398,
         address: '0x123',
         params: {
           name: 'test',
@@ -368,7 +368,7 @@ describe('useRecords', () => {
 
     queryClient.setQueryData(
       createQueryKey({
-        chainId: 1,
+        chainId: 398,
         address: '0x123',
         params: {
           name: 'test',
@@ -402,7 +402,7 @@ describe('useRecords', () => {
 
     queryClient.setQueryData(
       createQueryKey({
-        chainId: 1,
+        chainId: 398,
         address: '0x123',
         params: {
           name: 'test',

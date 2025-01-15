@@ -79,7 +79,8 @@ const shouldSwitchChain = ({
   !getSupportedChainById(chainId)
 
 export const Basic = withErrorBoundary(({ children }: { children: React.ReactNode }) => {
-  const { chainId, connector, isConnected } = useAccount()
+  const { connector, isConnected } = useAccount()
+  const chainId = 398
   const hasProgrammaticChainSwitching = Boolean(connector?.switchChain)
   const { switchChain, isPending, isError } = useSwitchChain()
 
@@ -97,7 +98,7 @@ export const Basic = withErrorBoundary(({ children }: { children: React.ReactNod
     if (
       shouldSwitchChain({ isConnected, hasProgrammaticChainSwitching, isPending, isError, chainId })
     ) {
-      switchChain({ chainId: 1 })
+      switchChain({ chainId: 398 as any })
     }
   }, [isConnected, hasProgrammaticChainSwitching, isPending, isError, chainId, switchChain])
 

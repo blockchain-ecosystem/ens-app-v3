@@ -21,6 +21,7 @@ export const OFFCHAIN_DNS_RESOLVER_MAP = {
   '17000': '0x7CF33078a37Cee425F1ad149875eE1e4Bdf0aD9B',
   '11155111': '0x179Be112b24Ad4cFC392eF8924DfA08C20Ad8583',
   '1337': deploymentAddresses.OffchainDNSResolver,
+  '398': process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as `0x${string}`,
 } as Record<string, Address | undefined>
 
 export const EXTENDED_DNS_RESOLVER_MAP = {
@@ -28,11 +29,103 @@ export const EXTENDED_DNS_RESOLVER_MAP = {
   '17000': '0xB0c003d54e7c5a30C0dF72c0D43Df5876d457618',
   '11155111': '0x0EF1aF80c24B681991d675176D9c07d8C9236B9a',
   '1337': deploymentAddresses.ExtendedDNSResolver,
+  '398': process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as `0x${string}`,
 } as Record<string, Address | undefined>
 
 // ordered by recency
 export const KNOWN_RESOLVER_DATA: KnownResolverData = {
   '1': [
+    {
+      address: '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63',
+      deployer: 'ENS Labs',
+      tag: 'latest',
+      isNameWrapperAware: true,
+      supportedInterfaces: [
+        RESOLVER_INTERFACE_IDS.AddressResolver,
+        RESOLVER_INTERFACE_IDS.MultiCoinAddressResolver,
+        RESOLVER_INTERFACE_IDS.NameResolver,
+        RESOLVER_INTERFACE_IDS.AbiResolver,
+        RESOLVER_INTERFACE_IDS.TextResolver,
+        RESOLVER_INTERFACE_IDS.ContentHashResolver,
+        RESOLVER_INTERFACE_IDS.DnsRecordResolver,
+        RESOLVER_INTERFACE_IDS.InterfaceResolver,
+        RESOLVER_INTERFACE_IDS.VersionableResolver,
+      ],
+    },
+    {
+      address: '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41',
+      deployer: 'ENS Labs',
+      tag: null,
+      isNameWrapperAware: false,
+      supportedInterfaces: [
+        RESOLVER_INTERFACE_IDS.AddressResolver,
+        RESOLVER_INTERFACE_IDS.MultiCoinAddressResolver,
+        RESOLVER_INTERFACE_IDS.NameResolver,
+        RESOLVER_INTERFACE_IDS.AbiResolver,
+        RESOLVER_INTERFACE_IDS.TextResolver,
+        RESOLVER_INTERFACE_IDS.ContentHashResolver,
+        RESOLVER_INTERFACE_IDS.DnsRecordResolver,
+        RESOLVER_INTERFACE_IDS.InterfaceResolver,
+      ],
+    },
+    {
+      address: '0xDaaF96c344f63131acadD0Ea35170E7892d3dfBA',
+      deployer: 'ENS Labs',
+      tag: null,
+      isNameWrapperAware: false,
+      supportedInterfaces: [
+        RESOLVER_INTERFACE_IDS.AddressResolver,
+        RESOLVER_INTERFACE_IDS.MultiCoinAddressResolver,
+        RESOLVER_INTERFACE_IDS.NameResolver,
+        RESOLVER_INTERFACE_IDS.AbiResolver,
+        RESOLVER_INTERFACE_IDS.TextResolver,
+        RESOLVER_INTERFACE_IDS.ContentHashResolver,
+        RESOLVER_INTERFACE_IDS.DnsRecordResolver,
+        RESOLVER_INTERFACE_IDS.InterfaceResolver,
+      ],
+    },
+    {
+      address: '0x226159d592E2b063810a10Ebf6dcbADA94Ed68b8',
+      deployer: 'ENS Labs',
+      tag: 'outdated',
+      isNameWrapperAware: false,
+      supportedInterfaces: [
+        RESOLVER_INTERFACE_IDS.AddressResolver,
+        RESOLVER_INTERFACE_IDS.MultiCoinAddressResolver,
+        RESOLVER_INTERFACE_IDS.NameResolver,
+        RESOLVER_INTERFACE_IDS.AbiResolver,
+        RESOLVER_INTERFACE_IDS.TextResolver,
+        RESOLVER_INTERFACE_IDS.ContentHashResolver,
+        RESOLVER_INTERFACE_IDS.InterfaceResolver,
+      ],
+    },
+    {
+      address: '0x5FfC014343cd971B7eb70732021E26C35B744cc4',
+      deployer: 'ENS Labs',
+      tag: 'outdated',
+      isNameWrapperAware: false,
+      supportedInterfaces: [
+        RESOLVER_INTERFACE_IDS.AddressResolver,
+        RESOLVER_INTERFACE_IDS.NameResolver,
+        RESOLVER_INTERFACE_IDS.AbiResolver,
+        RESOLVER_INTERFACE_IDS.TextResolver,
+        RESOLVER_INTERFACE_IDS.InterfaceResolver,
+      ],
+    },
+    {
+      address: '0x1da022710dF5002339274AaDEe8D58218e9D6AB5',
+      deployer: 'ENS Labs',
+      tag: 'outdated',
+      isNameWrapperAware: false,
+      supportedInterfaces: [
+        RESOLVER_INTERFACE_IDS.AddressResolver,
+        RESOLVER_INTERFACE_IDS.NameResolver,
+        RESOLVER_INTERFACE_IDS.AbiResolver,
+        RESOLVER_INTERFACE_IDS.InterfaceResolver,
+      ],
+    },
+  ],
+  '398': [
     {
       address: '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63',
       deployer: 'ENS Labs',

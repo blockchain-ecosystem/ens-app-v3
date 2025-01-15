@@ -58,7 +58,7 @@ describe('useSubscribeToEarnifi', () => {
       result.current.subscribe({
         email: 'test@example.com',
         address: '0x1234567890123456789012345678901234567890',
-        chainId: 1,
+        chainId: 398,
       })
     })
 
@@ -72,7 +72,7 @@ describe('useSubscribeToEarnifi', () => {
     // Simulate a server error
     result.current.subscribe({
       email: 'test@example.com',
-      chainId: 1,
+      chainId: 398,
       address: '',
     })
 

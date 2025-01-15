@@ -29,7 +29,7 @@ const defaultData: RegistrationReducerDataItem = {
   name: '',
   isMoonpayFlow: false,
   externalTransactionId: '',
-  chainId: 1,
+  chainId: 398,
   durationType: 'years',
   version: REGISTRATION_REDUCER_DATA_ITEM_VERSION,
 }

@@ -122,7 +122,7 @@ describe('TransactionStageModal', () => {
   beforeEach(() => {
     mockUseClient.mockReturnValue({})
     useMockedUseQueryOptions({
-      chainId: 1,
+      chainId: 398,
       address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       client: mockClient,
     })

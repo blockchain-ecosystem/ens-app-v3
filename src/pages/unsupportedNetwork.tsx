@@ -41,7 +41,8 @@ export default function Page() {
 
   const router = useRouterWithHistory()
 
-  const { chainId, isConnected } = useAccount()
+  const { isConnected } = useAccount()
+  const chainId = 398
   const { switchChain } = useSwitchChain()
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function Page() {
   }, [isConnected, chainId, router])
 
   const handleChangeNetwork = () => {
-    switchChain({ chainId: 1 })
+    switchChain({ chainId: 398 as any })
   }
 
   return (

@@ -3,9 +3,10 @@ import { existsSync, mkdirSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import hre from 'hardhat'
 import { resolve } from 'path'
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const func: DeployFunction = async function (hre: any) {
   const { getNamedAccounts } = hre
   const { deployer } = await getNamedAccounts()
 
@@ -27,12 +28,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log('Wrote Multicall JSON file to', jsonPath)
   }
 
-  await hre.deployments.deploy('Multicall', {
+  const rs = await hre.deployments.deploy('Multicall', {
     from: deployer,
     contract: contractJson,
   })
+  console.log('Multicall deployed at', rs)
+  return true
 }
-
 func.id = 'multicall'
+func.tags = ['multicall']
 
 export default func

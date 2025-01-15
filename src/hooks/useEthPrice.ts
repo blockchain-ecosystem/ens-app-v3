@@ -1,16 +1,19 @@
 import { Address } from 'viem'
-import { useReadContract } from 'wagmi'
+import { useChainId, useReadContract } from 'wagmi'
 
 import { useAddressRecord } from './ensjs/public/useAddressRecord'
 
 const ORACLE_ENS = 'eth-usd.data.eth'
 
+const ORACLE_CUSTOM = process.env.NEXT_PUBLIC_CONTRACT_DUMMY_ORACLE as `0x${string}`
+
 export const useEthPrice = () => {
+  const chainId: any = useChainId()
   const { data: address_ } = useAddressRecord({
     name: ORACLE_ENS,
   })
 
-  const address = (address_?.value as Address) || undefined
+  const address = chainId === 398 ? ORACLE_CUSTOM : (address_?.value as Address) || undefined
 
   return useReadContract({
     abi: [

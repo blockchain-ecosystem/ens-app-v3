@@ -8,7 +8,7 @@ it.each([
     matchType: 'all matching',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -22,7 +22,7 @@ it.each([
     matchType: 'no match parameters',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -36,7 +36,7 @@ it.each([
     matchType: 'mismatched function name',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -50,7 +50,7 @@ it.each([
     matchType: 'mismatched chain id',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -64,7 +64,7 @@ it.each([
     matchType: 'mismatched address',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -78,7 +78,7 @@ it.each([
     matchType: 'mismatched scope key',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -92,7 +92,7 @@ it.each([
     matchType: 'function params not object',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -106,7 +106,7 @@ it.each([
     matchType: 'param key not in matched params object',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',
@@ -120,7 +120,7 @@ it.each([
     matchType: 'param value mismatch',
     internalParams: {
       functionParams: { param1: 'value1', param2: 'value2' },
-      chainId: 1,
+      chainId: 398,
       address: '0x123',
       scopeKey: 'scopeKey',
       functionName: 'getSomething',

@@ -79,7 +79,7 @@ describe('EarnifiDialog', () => {
 
     expect(subscribeMock).toHaveBeenCalledWith({
       address: 'name',
-      chainId: 1,
+      chainId: 398,
       email: 'validemail@example.com',
     })
   })

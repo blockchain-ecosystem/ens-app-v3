@@ -87,7 +87,7 @@ const defaultData = Object.freeze({
   type: null,
   address: '0x',
   started: false,
-  chainId: 1,
+  chainId: 398,
 }) as DnsImportReducerDataItem
 
 const createDefaultData = (selected: SelectedItemProperties): DnsImportReducerDataItem => ({

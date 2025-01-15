@@ -48,7 +48,11 @@
     "compose": "cp ./node_modules/@ensdomains/ens-test-env/src/docker-compose.yml ./docker-compose.yml",
     "subgraph:update": "ens-test-env subgraph --var NEXT_PUBLIC_DEPLOYMENT_ADDRESSES",
     "knip": "knip",
-    "knip:fix": "knip --fix --allow-remove-files"
+    "knip:fix": "knip --fix --allow-remove-files",
+
+    "dev:ncustom": "NEXT_PUBLIC_PROVIDER=https://rpc-eth.teknix.dev NEXT_PUBLIC_AVUP_ENDPOINT=https://avatar-upload.teknix5947.workers.dev pnpm dev",
+    "dev:gcustom": "rm -rf .next && NEXT_PUBLIC_GRAPH_URI=http://103.69.98.90:8000/subgraphs/name/graphprotocol/ens NEXT_PUBLIC_ETH_NODE=anvil NEXT_PUBLIC_AVUP_ENDPOINT=https://avatar-upload.teknix5947.workers.dev pnpm dev:ncustom",
+    "build:gcustom": "NEXT_PUBLIC_GRAPH_URI=http://103.69.98.90:8000/subgraphs/name/graphprotocol/ens NEXT_PUBLIC_PROVIDER=https://rpc-eth.teknix.dev NEXT_PUBLIC_ETH_NODE=anvil pnpm build"
   },
   "dependencies": {
     "@adraffy/ens-normalize": "1.10.1",

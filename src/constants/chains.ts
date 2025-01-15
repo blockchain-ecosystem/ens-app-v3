@@ -4,6 +4,7 @@ import { localhost, mainnet, sepolia } from 'wagmi/chains'
 import { addEnsContracts } from '@ensdomains/ensjs'
 
 import type { Register } from '@app/local-contracts'
+import { custom } from '@app/utils/chains/makeCustomChainWithEns'
 import { makeLocalhostChainWithEns } from '@app/utils/chains/makeLocalhostChainWithEns'
 
 export const deploymentAddresses = JSON.parse(
@@ -25,14 +26,37 @@ export const mainnetWithEns = {
     },
   },
 }
+
 export const sepoliaWithEns = addEnsContracts(sepolia)
 export const holeskyWithEns = addEnsContracts(holesky)
+export const customWithEns = {
+  ...custom,
+  contracts: {
+    ...custom.contracts,
+    ensRegistry: custom.contracts.ensRegistry,
+    ensUniversalResolver: custom.contracts.ensUniversalResolver,
+    ensBaseRegistrarImplementation: custom.contracts.ensBaseRegistrarImplementation,
+    ensBulkRenewal: custom.contracts.ensBulkRenewal,
+    ensDnsRegistrar: custom.contracts.ensDnsRegistrar,
+    ensDnssecImpl: custom.contracts.ensDnssecImpl,
+    ensEthRegistrarController: custom.contracts.ensEthRegistrarController,
+    ensNameWrapper: custom.contracts.ensNameWrapper,
+    ensPublicResolver: custom.contracts.ensPublicResolver,
+    ensReverseRegistrar: custom.contracts.ensReverseRegistrar,
+  },
+  subgraphs: {
+    ens: {
+      url: process.env.NEXT_PUBLIC_CUSTOM_NETWORK_SUBGRAPH_URL || '',
+    },
+  },
+} as const
 
 export const chainsWithEns = [
   mainnetWithEns,
   sepoliaWithEns,
   holeskyWithEns,
   localhostWithEns,
+  customWithEns,
 ] as const
 
 export const getSupportedChainById = (chainId: number | undefined) =>
@@ -43,3 +67,4 @@ export type SupportedChain =
   | typeof sepoliaWithEns
   | typeof holeskyWithEns
   | typeof localhostWithEns
+  | typeof customWithEns
