@@ -7,7 +7,6 @@ import { CheckCircleSVG, Helper } from '@ensdomains/thorin'
 
 import RecordItem from '@app/components/RecordItem'
 import { DNS_TXT_RECORD_HELPER_LINKS } from '@app/constants/dnsLinks'
-import { EXTENDED_DNS_RESOLVER_MAP } from '@app/constants/resolverAddressData'
 import { useDnsOffchainStatus } from '@app/hooks/dns/useDnsOffchainStatus'
 import { shortenAddress } from '@app/utils/utils'
 
@@ -22,6 +21,7 @@ import {
 import { StatusChecker } from '../StatusChecker'
 import { SupportLinkList } from '../SupportLinkList'
 import { DnsImportReducerAction, SelectedItemProperties } from '../useDnsImportReducer'
+import { getDnsResolverValue } from '../utils'
 
 const ValueButtonsContainer = styled.div(
   ({ theme }) => css`
@@ -59,17 +59,14 @@ const RecordItemWrapper = styled.div(
   `,
 )
 
-const getDnsResolverValue = (chainId: number) => {
-  if (chainId === 1) return 'dnsname.ens.eth'
-  return EXTENDED_DNS_RESOLVER_MAP[String(chainId)]
-}
-
 export const VerifyOffchainOwnership = ({
   dispatch,
   selected,
+  tld,
 }: {
   dispatch: Dispatch<DnsImportReducerAction>
   selected: SelectedItemProperties
+  tld: string
 }) => {
   const { t } = useTranslation('dnssec', { keyPrefix: 'steps.verifyOwnership' })
   const { t: tc } = useTranslation('common')
@@ -97,6 +94,8 @@ export const VerifyOffchainOwnership = ({
     return null
   }, [tc, error])
 
+  const resolverValue = getDnsResolverValue(chainId, tld)
+
   return (
     <DnsImportCard>
       <DnsImportHeading>{t('title')}</DnsImportHeading>
@@ -116,11 +115,7 @@ export const VerifyOffchainOwnership = ({
                 <DnsDisplayValue label="Type" value="TXT" />
                 <DnsDisplayValue label="Name" value="@" copyable />
               </ButtonRow>
-              <DnsDisplayValue
-                label="Value"
-                value={`ENS1 ${getDnsResolverValue(chainId)} ${address}`}
-                copyable
-              />
+              <DnsDisplayValue label="Value" value={`ENS1 ${resolverValue} ${address}`} copyable />
             </ValueButtonsContainer>
             <SupportLinkList
               title={t('status.mismatching.help')}

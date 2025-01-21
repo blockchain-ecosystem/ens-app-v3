@@ -10,6 +10,7 @@ import {
 } from '@ensdomains/ensjs'
 import type { GetDnsImportDataReturnType } from '@ensdomains/ensjs/dns'
 
+import { EXTENDED_DNS_RESOLVER_MAP } from '@app/constants/resolverAddressData'
 import { addStateOverride } from '@app/hooks/chain/useEstimateGasWithStateOverride'
 import type { UseDnsOwnerError } from '@app/hooks/ensjs/dns/useDnsOwner'
 import { createTransactionItem } from '@app/transaction-flow/transaction'
@@ -111,4 +112,21 @@ export const createImportTransactionRequests = ({
     return { transactions: [claimTx] } as const
   }
   return { transactions: [createImportTx()] } as const
+}
+
+export const getDnsResolverValue = (chainId: number, tld: string) => {
+  console.log('🚀 ~ getDnsResolverValue ~ tld:', tld)
+  // Default ENS resolver
+  if (chainId === 1) return 'dnsname.ens.eth'
+
+  // Custom TLD resolvers
+  const resolvers: Record<string, string> = {
+    eth: EXTENDED_DNS_RESOLVER_MAP[String(chainId)] as string,
+    com: process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as string,
+    xyz: process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as string,
+    pik: process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as string,
+    // Add more TLDs as needed
+  }
+
+  return resolvers[tld] || 'dnsname.ens.eth'
 }

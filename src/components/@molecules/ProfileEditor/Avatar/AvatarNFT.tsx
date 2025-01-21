@@ -24,42 +24,26 @@ import { useInfiniteQuery } from '@app/utils/query/useInfiniteQuery'
 import { DialogInput } from '../../DialogComponentVariants/DialogInput'
 
 type OwnedNFT = {
-  contract: {
+  id: string
+  image_url: string | null
+  token_type: 'ERC-721' | 'ERC-1155' | string
+  token: {
     address: string
-  }
-  id: {
-    tokenId: string
-    tokenMetadata: {
-      tokenType: 'ERC721' | 'ERC1155'
-    }
-  }
-  balance: string
-  title: string
-  description: string
-  tokenUri: {
-    raw: string
-    gateway: string
-  }
-  media: {
-    raw: string
-    gateway: string
-    thumbnail?: string
-    format?: string
-  }[]
-  metadata: {
-    image: string
-    external_url: string
-    background_color: string
     name: string
-    description: string
-    attributes: string
+    type: string
   }
+  metadata?: {
+    name?: string
+    description?: string
+    image?: string
+  }
+  value?: string
+  owner?: string
 }
 
 type NFTResponse = {
-  ownedNfts: OwnedNFT[]
-  pageKey: string
-  totalCount: number
+  items: OwnedNFT[]
+  next_page_params: string | null
 }
 
 async function getNfts({
@@ -71,7 +55,7 @@ async function getNfts({
   owner: string
   pageKey: string
 }) {
-  const baseURL = `https://ens-nft-worker.ens-cf.workers.dev/v1/${network}/getNfts/`
+  const baseURL = `${process.env.NEXT_PUBLIC_CUSTOM_NFT_WORKER}/v1/${network}/getNfts/`
 
   const urlParams = new URLSearchParams()
 
@@ -87,7 +71,32 @@ async function getNfts({
     redirect: 'follow',
   })
 
-  return (await res.json()) as NFTResponse
+  const data = (await res.json()) as NFTResponse
+  return {
+    ownedNfts: data.items.map((item) => ({
+      contract: {
+        address: item.token.address,
+      },
+      id: {
+        tokenId: item.id,
+        tokenMetadata: {
+          tokenType: item.token_type === 'ERC-721' ? 'ERC721' : 'ERC1155',
+        },
+      },
+      balance: item.value || '1',
+      title: item.metadata?.name || item.token.name || '',
+      description: item.metadata?.description || '',
+      media: [
+        {
+          gateway: item.image_url || item.metadata?.image || '',
+          raw: item.metadata?.image || item.image_url || '',
+        },
+      ],
+      metadata: item.metadata || {},
+    })),
+    pageKey: data.next_page_params,
+    totalCount: data.items.length,
+  }
 }
 
 function useNtfs(chain: string, address: string) {
@@ -102,7 +111,7 @@ function useNtfs(chain: string, address: string) {
         ...response,
         ownedNfts: response.ownedNfts.filter(
           (nft) =>
-            (nft.media?.[0]?.thumbnail || nft.media?.[0]?.gateway) &&
+            (nft.media?.[0]?.gateway || nft.metadata?.image) &&
             nft.contract.address !==
               getSupportedChainContractAddress({
                 client,
@@ -309,7 +318,7 @@ const NftItem = ({
   const [loadState, setLoadState] = useState<'loading' | 'error' | 'loaded'>('loading')
   return (
     <NFTContainer
-      data-testid={`nft-${nft.id.tokenId}-${nft.contract.address}`}
+      data-testid={`nft-${nft.id}-${nft.token.address}`}
       as="button"
       onClick={(e) => {
         e.preventDefault()
@@ -319,12 +328,12 @@ const NftItem = ({
     >
       {loadState !== 'error' ? (
         <NFTImage
-          src={nft.media[0].thumbnail || nft.media[0].gateway}
+          src={nft?.image_url || nft.metadata?.image}
           loading="lazy"
           onError={() => setLoadState('error')}
           onLoad={() => setLoadState('loaded')}
           data-image-state={loadState}
-          data-testid={`nft-image-${nft.id.tokenId}-${nft.contract.address}`}
+          data-testid={`nft-image-${nft.id}-${nft.token.address}`}
         />
       ) : (
         <LoadFailureContainer>
@@ -334,7 +343,7 @@ const NftItem = ({
           </Typography>
         </LoadFailureContainer>
       )}
-      <NFTName>{nft.title || t('input.profileEditor.tabs.avatar.nft.unknown')}</NFTName>
+      <NFTName>{nft.metadata?.name || t('input.profileEditor.tabs.avatar.nft.unknown')}</NFTName>
     </NFTContainer>
   )
 }
@@ -375,8 +384,25 @@ export const AvatarNFT = ({
   const { data: NFTPages, fetchNextPage, isLoading } = useNtfs(chain, selectedAddress)
 
   const NFTs = (NFTPages?.pages ?? [])
-    .reduce((prev, curr) => [...prev, ...curr.ownedNfts], [] as OwnedNFT[])
-    .filter((nft) => nft.title.toLowerCase().includes(searchedInput))
+    .reduce(
+      (prev, curr) => [
+        ...prev,
+        ...curr.ownedNfts.map((item) => ({
+          id: item.id.tokenId,
+          image_url: item.media[0].gateway || null,
+          token_type:
+            item.id.tokenMetadata.tokenType === 'ERC721' ? 'ERC-721' : ('ERC-1155' as const),
+          token: {
+            address: item.contract.address,
+            name: item.title,
+            type: item.id.tokenMetadata.tokenType,
+          },
+          metadata: item.metadata,
+        })),
+      ],
+      [] as OwnedNFT[],
+    )
+    .filter((nft) => (nft.metadata?.name || '').toLowerCase().includes(searchedInput))
 
   const hasNFTs = NFTs && (NFTs.length > 0 || searchedInput !== '')
   const hasNextPage = !!NFTPages?.pages[NFTPages.pages.length - 1].pageKey
@@ -392,27 +418,29 @@ export const AvatarNFT = ({
     const nftReference = NFTs?.[selectedNFT]!
 
     const handleConfirm = () => {
-      const string = `eip155:1/${nftReference.id.tokenMetadata.tokenType.toLowerCase()}:${
-        nftReference.contract.address
-      }/${BigInt(nftReference.id.tokenId).toString()}`
-      handleSubmit('nft', string, nftReference.media[0].gateway)
+      const string = `eip155:1/${nftReference.token_type.toLowerCase().replace('-', '')}:${
+        nftReference.token.address
+      }/${BigInt(nftReference.id).toString()}`
+      handleSubmit('nft', string, nftReference.image_url || '')
     }
 
     return (
       <>
         <Dialog.Heading
-          title={t('input.profileEditor.tabs.avatar.nft.selected.title')}
+          title={nftReference.metadata?.name || t('input.profileEditor.tabs.avatar.nft.unknown')}
           subtitle={t('input.profileEditor.tabs.avatar.nft.selected.subtitle')}
         />
         <Dialog.Content>
           <SelectedNFTContainer>
             <SelectedNFTImageWrapper>
-              <SelectedNFTImage src={nftReference.media[0].gateway} />
+              <SelectedNFTImage
+                src={nftReference.image_url || nftReference.metadata?.image || ''}
+              />
             </SelectedNFTImageWrapper>
             <Typography weight="bold">
-              {nftReference.title || t('input.profileEditor.tabs.avatar.nft.unknown')}
+              {nftReference.metadata?.name || t('input.profileEditor.tabs.avatar.nft.unknown')}
             </Typography>
-            <Typography>{nftReference.description}</Typography>
+            <Typography>{nftReference.metadata?.description || ''}</Typography>
           </SelectedNFTContainer>
         </Dialog.Content>
         <Dialog.Footer
@@ -482,7 +510,7 @@ export const AvatarNFT = ({
                   nft={NFT}
                   setSelectedNft={setSelectedNFT}
                   i={i}
-                  key={`${NFT.id.tokenId}-${NFT.contract.address}`}
+                  key={`${NFT.id}-${NFT.token.address}`}
                 />
               ))}
             </ScrollBoxContent>

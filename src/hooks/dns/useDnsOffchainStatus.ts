@@ -4,8 +4,11 @@ import { useAccount, useChainId } from 'wagmi'
 
 import { GetDnsOffchainDataReturnType } from '@ensdomains/ensjs/dns'
 
-import { checkDnsAddressMatch, checkDnsError } from '@app/components/pages/import/[name]/utils'
-import { EXTENDED_DNS_RESOLVER_MAP } from '@app/constants/resolverAddressData'
+import {
+  checkDnsAddressMatch,
+  checkDnsError,
+  getDnsResolverValue,
+} from '@app/components/pages/import/[name]/utils'
 
 import { useDnsOffchainData } from '../ensjs/dns/useDnsOffchainData'
 import { useAddressRecord } from '../ensjs/public/useAddressRecord'
@@ -18,12 +21,16 @@ type UseDnsOffchainStatusParameters = {
 const getOffchainDnsResolverStatus = ({
   chainId,
   dnsOffchainData,
+  tld,
 }: {
   chainId: number
   dnsOffchainData: GetDnsOffchainDataReturnType | undefined
+  tld: string
 }) => {
   if (!dnsOffchainData) return null
-  if (dnsOffchainData.resolverAddress === EXTENDED_DNS_RESOLVER_MAP[String(chainId)]) {
+
+  const expectedResolver = getDnsResolverValue(chainId, tld)
+  if (dnsOffchainData.resolverAddress === expectedResolver) {
     return 'matching' as const
   }
   return 'mismatching' as const
@@ -63,7 +70,13 @@ export const useDnsOffchainStatus = ({ name, enabled = true }: UseDnsOffchainSta
 
   const data = useMemo(() => {
     if (isLoading || isError) return undefined
-    const resolverStatus = getOffchainDnsResolverStatus({ chainId, dnsOffchainData })
+    const labels = name?.split('.') || []
+    const tld = labels[labels.length - 1]
+    const resolverStatus = getOffchainDnsResolverStatus({
+      chainId,
+      dnsOffchainData,
+      tld,
+    })
     const addressStatus = checkDnsAddressMatch({
       address,
       dnsAddress: addressRecord?.value as Address | undefined | null,
@@ -82,7 +95,7 @@ export const useDnsOffchainStatus = ({ name, enabled = true }: UseDnsOffchainSta
           }
         : null,
     }
-  }, [isLoading, isError, chainId, dnsOffchainData, address, addressRecord])
+  }, [isLoading, isError, chainId, dnsOffchainData, address, addressRecord, name])
 
   const error = useMemo(() => {
     if (isLoading) return null

@@ -12,6 +12,7 @@ import { Outlink } from '@app/components/Outlink'
 import { useAbilities } from '@app/hooks/abilities/useAbilities'
 import { useChainName } from '@app/hooks/chain/useChainName'
 import { useRenew } from '@app/hooks/pages/profile/useRenew/useRenew'
+import { useAvatarFromRecord } from '@app/hooks/useAvatarFromRecord'
 import { useNameDetails } from '@app/hooks/useNameDetails'
 import { useProtectedRoute } from '@app/hooks/useProtectedRoute'
 import { useQueryParameterState } from '@app/hooks/useQueryParameterState'
@@ -107,7 +108,7 @@ export const NameAvailableBanner = ({
 
 const ProfileContent = ({ isSelf, isLoading: parentIsLoading, name }: Props) => {
   const router = useRouterWithHistory()
-  const { t } = useTranslation('profile')
+  const { t: tCommon } = useTranslation('common')
   const { address } = useAccount()
 
   const nameDetails = useNameDetails({ name })
@@ -140,30 +141,30 @@ const ProfileContent = ({ isSelf, isLoading: parentIsLoading, name }: Props) => 
 
   const [titleContent, descriptionContent] = useMemo(() => {
     if (isSelf) {
-      return [t('yourProfile'), '']
+      return [tCommon('yourProfile'), '']
     }
     if (beautifiedName) {
       return [
-        t('meta.title', {
+        tCommon('meta.title', {
           name: beautifiedName,
         }),
-        t('meta.description', {
+        tCommon('meta.description', {
           name: beautifiedName,
         }),
       ]
     }
     if (typeof isValid === 'boolean' && isValid === false) {
-      return [t('errors.invalidName'), t('errors.invalidName')]
+      return [tCommon('errors.invalidName'), tCommon('errors.invalidName')]
     }
     return [
-      t('meta.title', {
+      tCommon('meta.title', {
         name,
       }),
-      t('meta.description', {
+      tCommon('meta.description', {
         name,
       }),
     ]
-  }, [isSelf, beautifiedName, isValid, name, t])
+  }, [isSelf, beautifiedName, isValid, name, tCommon])
 
   const [tab, setTab_] = useQueryParameterState<Tab>('tab', 'profile')
   const setTab: typeof setTab_ = (value) => {
@@ -229,6 +230,11 @@ const ProfileContent = ({ isSelf, isLoading: parentIsLoading, name }: Props) => 
 
   const chainName = useChainName()
 
+  const avatarTest = useAvatarFromRecord(profile?.texts?.find((t) => t.key === 'avatar')?.value)
+  useEffect(() => {
+    console.log('Avatar test result:', avatarTest)
+  }, [avatarTest])
+
   return (
     <>
       <Head>
@@ -261,7 +267,7 @@ const ProfileContent = ({ isSelf, isLoading: parentIsLoading, name }: Props) => 
                     onClick={() => setTab(tabItem)}
                   >
                     <Typography fontVariant="extraLargeBold" color="inherit">
-                      {t(`tabs.${tabItem}.name`)}
+                      {tCommon(`tabs.${tabItem}.name`)}
                     </Typography>
                   </TabButton>
                 ))}
@@ -274,7 +280,7 @@ const ProfileContent = ({ isSelf, isLoading: parentIsLoading, name }: Props) => 
               fontVariant="bodyBold"
               href={makeEtherscanLink(profile.address!, chainName, 'address')}
             >
-              {t('etherscan', { ns: 'common' })}
+              {tCommon('etherscan', { ns: 'common' })}
             </Outlink>
           ) : null,
           trailing: match(tab)

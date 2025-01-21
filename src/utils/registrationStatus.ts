@@ -44,20 +44,15 @@ export const getRegistrationStatus = ({
   supportedTLD?: boolean | null
   name?: string
 }): RegistrationStatus => {
-  if (name === '[root]') return 'owned'
+  if (!supportedTLD) return 'unsupportedTLD'
 
-  if (isETH && is2LD && isShort) {
-    return 'short'
-  }
+  // Get TLD from name
+  const labels = name?.split('.') || []
+  const tld = labels[labels.length - 1]
+  const customTLDs = ['com', 'xyz', 'org', 'net', 'pik']
+  const isCustomTLD = customTLDs.includes(tld)
 
-  if (!ownerData && ownerData !== null && !wrapperData) return 'invalid'
-
-  if (!isETH && !supportedTLD) {
-    return 'unsupportedTLD'
-  }
-
-  if (isETH && is2LD) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  if ((isETH || isCustomTLD) && is2LD) {
     if (expiryData && expiryData.expiry) {
       const { expiry: _expiry, gracePeriod } = expiryData
       const expiry = new Date(_expiry.date)
@@ -74,15 +69,15 @@ export const getRegistrationStatus = ({
     }
     return 'available'
   }
+
   if (ownerData && ownerData.owner !== emptyAddress) {
     if (is2LD) {
       return 'imported'
     }
     return 'owned'
   }
-  if (type === 'name' && !is2LD) {
-    // more than 2 labels
 
+  if (type === 'name' && !is2LD) {
     if (addrData?.value && addrData.value !== emptyAddress) {
       return 'offChain'
     }

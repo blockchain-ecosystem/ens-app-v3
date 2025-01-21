@@ -40,6 +40,7 @@ import { TrackEventParameters, useEventTracker } from '@app/hooks/useEventTracke
 import { useLocalStorage } from '@app/hooks/useLocalStorage'
 import { createQueryKey } from '@app/hooks/useQueryOptions'
 import { useRouterWithHistory } from '@app/hooks/useRouterWithHistory'
+import { useSupportsTLD } from '@app/hooks/useSupportsTLD'
 import { useValidate, validate } from '@app/hooks/useValidate'
 import { useElementSize } from '@app/hooks/useWindowSize'
 import { CreateQueryKey, GenericQueryKey } from '@app/types'
@@ -238,11 +239,13 @@ const getRouteForSearchItem = ({
   chainId,
   queryClient,
   selectedItem,
+  isSupportedTLD,
 }: {
   address: Address | undefined
   chainId: SupportedChain['id']
   queryClient: QueryClient
   selectedItem: Exclude<SearchItem, { nameType: 'error' } | { nameType: 'text' }>
+  isSupportedTLD: boolean | undefined
 }) => {
   if (selectedItem.nameType === 'address') return `/address/${selectedItem.text}`
 
@@ -293,7 +296,7 @@ const getRouteForSearchItem = ({
         expiryData,
         priceData,
         addrData,
-        supportedTLD: true,
+        supportedTLD: isSupportedTLD,
       })
       if (registrationStatus === 'available') return `/register/${selectedItem.text}`
       if (registrationStatus === 'notImported') return `/import/${selectedItem.text}`
@@ -313,6 +316,7 @@ type CreateSearchHandlerProps = {
   setInputVal: Dispatch<SetStateAction<string>>
   queryClient: QueryClient
   trackEvent: (props: TrackEventParameters) => void
+  isSupportedTLD: boolean | undefined
 }
 
 const createSearchHandler =
@@ -326,6 +330,7 @@ const createSearchHandler =
     setInputVal,
     queryClient,
     trackEvent,
+    isSupportedTLD,
   }: CreateSearchHandlerProps): SearchHandler =>
   (index: number) => {
     if (index === -1) return
@@ -341,7 +346,13 @@ const createSearchHandler =
       { lastAccessed: Date.now(), nameType, text, isValid: selectedItem.isValid },
     ])
 
-    const path = getRouteForSearchItem({ address, chainId, queryClient, selectedItem })
+    const path = getRouteForSearchItem({ 
+      address, 
+      chainId, 
+      queryClient, 
+      selectedItem,
+      isSupportedTLD,
+    })
 
     const eventName = match(path)
       .with(`/register/${text}`, () => 'search_selected_eth' as const)
@@ -680,6 +691,26 @@ export const SearchInput = ({ size = 'extraLarge' }: { size?: 'medium' | 'extraL
   const dropdownItems = useBuildDropdownItems(inputVal, history)
   const { trackEvent } = useEventTracker()
 
+  const { data: isSupportedTLD } = useSupportsTLD(inputVal || '')
+
+  const handleItemClick = useCallback(
+    (index: number) => {
+      const selectedItem = dropdownItems[index]
+      if (!selectedItem) return
+
+      const route = getRouteForSearchItem({
+        address,
+        chainId,
+        queryClient,
+        selectedItem,
+        isSupportedTLD,
+      })
+      
+      if (route) router.push(route)
+    },
+    [address, chainId, dropdownItems, queryClient, router, isSupportedTLD],
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearch = useCallback(
     createSearchHandler({
@@ -692,6 +723,7 @@ export const SearchInput = ({ size = 'extraLarge' }: { size?: 'medium' | 'extraL
       setHistory,
       setInputVal,
       trackEvent,
+      isSupportedTLD,
     }),
     [address, chainId, dropdownItems, queryClient, router, searchInputRef, setHistory, setInputVal],
   )

@@ -104,9 +104,11 @@ export const DnsClaim = () => {
               <ImportTransaction dispatch={dispatch} selected={selected} item={item} />
             ))
             .with('completeOnchain', () => <CompleteImport selected={selected} item={item} />)
-            .with('verifyOffchainOwnership', () => (
-              <VerifyOffchainOwnership dispatch={dispatch} selected={selected} />
-            ))
+            .with('verifyOffchainOwnership', () => {
+              const labels = selected.name.split('.')
+              const tld = labels[labels.length - 1]
+              return <VerifyOffchainOwnership dispatch={dispatch} selected={selected} tld={tld} />
+            })
             .with('completeOffchain', () => <CompleteImport selected={selected} item={item} />)
             .exhaustive(),
         }}
