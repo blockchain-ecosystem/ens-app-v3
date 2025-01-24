@@ -65,7 +65,12 @@ export const useDnsOwner = <TParams extends UseDnsOwnerParameters>({
   const preparedOptions = prepareQueryOptions({
     queryKey: initialOptions.queryKey,
     queryFn: initialOptions.queryFn,
-    enabled: enabled && !!params.name && !params.name?.endsWith('.eth') && params.name !== '[root]',
+    enabled:
+      enabled &&
+      !!params.name &&
+      !params.name?.endsWith('.eth') &&
+      !params.name?.endsWith('.pik') &&
+      params.name !== '[root]',
     gcTime,
     retry: 2,
     staleTime,

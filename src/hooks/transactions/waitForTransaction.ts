@@ -89,9 +89,10 @@ export async function waitForTransaction(
     })
     const code = (await call(client, {
       ...txn,
-      gasPrice: txn.type !== 'eip1559' ? txn.gasPrice : undefined,
-      maxFeePerGas: txn.type === 'eip1559' ? txn.maxFeePerGas : undefined,
-      maxPriorityFeePerGas: txn.type === 'eip1559' ? txn.maxPriorityFeePerGas : undefined,
+      gasPrice: txn.type.replace('-', '') !== 'eip1559' ? txn.gasPrice : undefined,
+      maxFeePerGas: txn.type.replace('-', '') === 'eip1559' ? txn.maxFeePerGas : undefined,
+      maxPriorityFeePerGas:
+        txn.type.replace('-', '') === 'eip1559' ? txn.maxPriorityFeePerGas : undefined,
     } as CallParameters)) as unknown as string
     const reason = hexToString(`0x${code.substring(138)}`)
     throw new Error(reason)

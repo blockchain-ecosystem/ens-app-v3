@@ -115,7 +115,6 @@ export const createImportTransactionRequests = ({
 }
 
 export const getDnsResolverValue = (chainId: number, tld: string) => {
-  console.log('🚀 ~ getDnsResolverValue ~ tld:', tld)
   // Default ENS resolver
   if (chainId === 1) return 'dnsname.ens.eth'
 
@@ -124,7 +123,7 @@ export const getDnsResolverValue = (chainId: number, tld: string) => {
     eth: EXTENDED_DNS_RESOLVER_MAP[String(chainId)] as string,
     com: process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as string,
     xyz: process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as string,
-    pik: process.env.NEXT_PUBLIC_CONTRACT_OFFCHAIN_DNS_RESOLVER as string,
+    // pik: EXTENDED_DNS_RESOLVER_MAP[String(chainId)] as string,
     // Add more TLDs as needed
   }
 

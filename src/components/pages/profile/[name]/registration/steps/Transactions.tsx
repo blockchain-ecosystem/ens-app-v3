@@ -235,6 +235,14 @@ const Transactions = ({ registrationData, name, callback, onStart }: Props) => {
     .with({ commitStage: 'complete' }, () => commitTx?.finaliseTime)
     .otherwise(() => undefined)
 
+  // Add immediate logging here
+  console.log('Commit transaction details:', {
+    commitTx,
+    commitTimestamp,
+    currentTime: Date.now(),
+    timeSinceCommit: commitTimestamp ? Date.now() - commitTimestamp : undefined,
+  })
+
   const [commitComplete, setCommitComplete] = useState(
     !!commitTimestamp && commitTimestamp + 60000 < Date.now(),
   )

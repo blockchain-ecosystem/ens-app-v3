@@ -37,14 +37,19 @@ const transaction = async ({
   connectorClient,
   data,
 }: TransactionFunctionParameters<Data>) => {
-  const price = await getPrice(client, { nameOrNames: data.name, duration: data.duration })
-  const value = price.base + price.premium
-  const valueWithBuffer = calculateValueWithBuffer(value)
+  try {
+    const price = await getPrice(client, { nameOrNames: data.name, duration: data.duration })
+    const value = price.base + price.premium
+    const valueWithBuffer = calculateValueWithBuffer(value)
 
-  return registerName.makeFunctionData(connectorClient, {
-    ...data,
-    value: valueWithBuffer,
-  })
+    return registerName.makeFunctionData(connectorClient, {
+      ...data,
+      value: valueWithBuffer,
+    })
+  } catch (error) {
+    console.error('Failed to get price or make function data for registration:', error)
+    throw error
+  }
 }
 
 export default { displayItems, transaction } satisfies Transaction<Data>

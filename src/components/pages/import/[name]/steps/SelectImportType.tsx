@@ -165,6 +165,7 @@ export const SelectImportType = ({
     () => tldResolver != null && tldResolver === OFFCHAIN_DNS_RESOLVER_MAP[chainId]!,
     [tldResolver, chainId],
   )
+  console.log("🚀 ~ tldResolverIsOffchainResolver:", tldResolverIsOffchainResolver)
 
   const { data: isDnsSecEnabled, isLoading: isDnsSecEnabledLoading } = useDnsSecEnabled({
     name: selected.name,

@@ -95,7 +95,7 @@ export const useEstimateFullRegistration = ({
     estimatedGasFee: data.gasCost,
     estimatedGasLoading: isLoading || gasPriceLoading,
     yearlyFee,
-    totalDurationBasedFee,
+    totalDurationBasedFee: totalDurationBasedFee,
     hasPremium,
     premiumFee,
     gasPrice,

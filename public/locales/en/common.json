@@ -185,6 +185,10 @@
     "networkLatency": {
       "title": "Slow data syncing",
       "message": "The ENS app is experiencing slow downs due to network latency issues."
+    },
+    "transaction": {
+      "revert": "Transaction was reverted by the network. Please try again.",
+      "unknown": "An unknown error occurred. Please try again."
     }
   },
   "transaction": {

@@ -62,7 +62,10 @@ export const getNameType = ({
   registrationStatus?: RegistrationStatus
   nameWrapperAddress: Address
 }): NameType => {
-  const tldType = name.endsWith('.eth') ? ('eth' as const) : ('dns' as const)
+  const tldType =
+    name.endsWith('.eth') || name.endsWith('.linhdevxin') || name.endsWith('.pik')
+      ? ('eth' as const)
+      : ('dns' as const)
   const level = nameLevel(name)
   const wrapLevel = getWrapLevel({ wrapperData, ownerData })
 

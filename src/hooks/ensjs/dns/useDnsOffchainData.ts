@@ -75,6 +75,7 @@ export const useDnsOffchainData = <TParams extends UseDnsOffchainDataParameters>
       enabled &&
       !!params.name &&
       !params.name?.endsWith('.eth') &&
+      !params.name?.endsWith('.pik') &&
       params.name !== 'eth' &&
       params.name !== '[root]',
     gcTime,

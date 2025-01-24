@@ -141,7 +141,6 @@ export const useBasicName = ({
         name: normalisedName,
       })
     : undefined
-  console.log('🚀 ~ registrationStatus:', registrationStatus)
 
   const { data: subgraphRegistrant } = useSubgraphRegistrant({
     name: normalisedName,

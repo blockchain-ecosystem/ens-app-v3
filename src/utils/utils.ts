@@ -99,13 +99,18 @@ export const isBrowser = !!(
 export const checkDNSName = (name: string): boolean => {
   const labels = name?.split('.')
 
-  return !!labels && labels[labels.length - 1] !== 'eth'
+  return (
+    !!labels &&
+    (labels[labels.length - 1] !== 'eth' ||
+      labels[labels.length - 1] !== 'linhdevxin' ||
+      labels[labels.length - 1] !== 'pik')
+  )
 }
 
 export const checkETH2LDFromName = (name: string): name is Eth2ldName => {
   const labels = name.split('.')
   if (labels.length !== 2) return false
-  if (labels[1] !== 'eth') return false
+  if (labels[1] !== 'eth' && labels[1] !== 'linhdevxin' && labels[1] !== 'pik') return false
   return true
 }
 
@@ -113,7 +118,7 @@ export const checkDNS2LDFromName = (name?: string) => {
   const labels = name?.split('.')
   if (!labels) return false
   if (labels.length !== 2) return false
-  if (labels[1] === 'eth') return false
+  if (labels[1] === 'eth' || labels[1] === 'linhdevxin' || labels[1] === 'pik') return false
   return true
 }
 

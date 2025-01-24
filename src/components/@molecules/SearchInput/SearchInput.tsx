@@ -346,10 +346,10 @@ const createSearchHandler =
       { lastAccessed: Date.now(), nameType, text, isValid: selectedItem.isValid },
     ])
 
-    const path = getRouteForSearchItem({ 
-      address, 
-      chainId, 
-      queryClient, 
+    const path = getRouteForSearchItem({
+      address,
+      chainId,
+      queryClient,
       selectedItem,
       isSupportedTLD,
     })
@@ -705,7 +705,7 @@ export const SearchInput = ({ size = 'extraLarge' }: { size?: 'medium' | 'extraL
         selectedItem,
         isSupportedTLD,
       })
-      
+
       if (route) router.push(route)
     },
     [address, chainId, dropdownItems, queryClient, router, isSupportedTLD],

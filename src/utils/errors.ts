@@ -27,6 +27,7 @@ const insufficientFundsRegex =
 
 const getEstimateGasExecutionErrorMessage = (err: EstimateGasExecutionError) => {
   const originError = err.walk()
+  console.log("🚀 ~ getEstimateGasExecutionErrorMessage ~ originError:", originError)
   const data = insufficientFundsRegex.exec(originError.message)
   if (data?.groups) {
     const { requiredBalance } = data.groups

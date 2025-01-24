@@ -23,6 +23,7 @@ export type RegistrationStatus =
   | 'unsupportedTLD'
   | 'offChain'
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export const getRegistrationStatus = ({
   timestamp,
   validation: { isETH, is2LD, isShort, type },
@@ -44,12 +45,13 @@ export const getRegistrationStatus = ({
   supportedTLD?: boolean | null
   name?: string
 }): RegistrationStatus => {
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   if (!supportedTLD) return 'unsupportedTLD'
 
   // Get TLD from name
   const labels = name?.split('.') || []
   const tld = labels[labels.length - 1]
-  const customTLDs = ['com', 'xyz', 'org', 'net', 'pik']
+  const customTLDs = ['com', 'xyz', 'org', 'net', 'pik', 'linhdevxin']
   const isCustomTLD = customTLDs.includes(tld)
 
   if ((isETH || isCustomTLD) && is2LD) {

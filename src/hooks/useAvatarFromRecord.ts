@@ -14,7 +14,6 @@ const SUPPORTED_PROTOCOL_REGEX = /^(http|https|ar|ipfs|eip155):/
 // const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY || 'no-key'
 const makeApiURL = (originalAddress: string) => {
   const cleanAddress = originalAddress.replace('-', '')
-  console.log('🚀 ~ makeApiURL ~ address:', cleanAddress)
   const match = cleanAddress.match(/^eip155:(\d+)\/(erc1155|erc721):(.*)\/(.*)$/)
   // const chainId = match?.[1]
   const tokenType = match?.[2]
@@ -27,7 +26,6 @@ const makeApiURL = (originalAddress: string) => {
 }
 
 const getAvatarSrc = async (record: string) => {
-  console.log('🚀 ~ getAvatarSrc ~ record:', record)
   try {
     const protocol = record.match(SUPPORTED_PROTOCOL_REGEX)?.[1]
     if (!protocol) return

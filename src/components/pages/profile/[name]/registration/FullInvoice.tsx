@@ -40,6 +40,7 @@ const FullInvoice = ({
   hasPremium,
   premiumFee,
   gasPrice,
+  estimatedGasLoading,
 }: Props) => {
   const { t } = useTranslation(['register', 'common'])
 
@@ -59,24 +60,35 @@ const FullInvoice = ({
         }),
         bufferPercentage: CURRENCY_FLUCTUATION_BUFFER_PERCENTAGE,
         value: totalDurationBasedFee,
+        loading: !totalDurationBasedFee,
         color: seconds < 30 * ONE_DAY ? ('orangePrimary' as Colors) : undefined,
       },
       {
         label: t('invoice.estimatedNetworkFee'),
         value: estimatedGasFee,
+        loading: estimatedGasLoading || estimatedGasFee === 0n,
       },
       ...(hasPremium
         ? [
             {
               label: t('invoice.temporaryPremium'),
               value: premiumFee,
+              loading: !premiumFee,
               bufferPercentage: CURRENCY_FLUCTUATION_BUFFER_PERCENTAGE,
               color: 'blue' as Colors,
             },
           ]
         : []),
     ]
-  }, [t, seconds, totalDurationBasedFee, estimatedGasFee, hasPremium, premiumFee])
+  }, [
+    t,
+    seconds,
+    totalDurationBasedFee,
+    estimatedGasFee,
+    estimatedGasLoading,
+    hasPremium,
+    premiumFee,
+  ])
 
   return (
     <InvoiceContainer>

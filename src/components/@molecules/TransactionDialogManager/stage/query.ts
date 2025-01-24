@@ -154,7 +154,17 @@ export const calculateGasLimit = async ({
   const gasEstimate = await estimateGas(client, {
     ...txWithZeroGas,
     account: connectorClient.account!,
+  }).catch((err) => {
+    console.error('Gas estimation failed:', {
+      error: err,
+      params: {
+        ...txWithZeroGas,
+        account: connectorClient.account,
+      },
+    })
+    throw err
   })
+
   return {
     gasLimit: registrationGasFeeModifier(gasEstimate, transactionName),
     accessList: undefined,
@@ -270,9 +280,12 @@ export const getTransactionErrorQueryFn =
   async ({
     queryKey: [{ hash, status }, chainId],
   }: QueryFunctionContext<GetTransactionErrorQueryKey>) => {
+    console.log("🚀 ~ hash:", hash)
     if (!hash || status !== 'failed') return null
     const client = config.getClient({ chainId })
+    console.log("🚀 ~ client:", client)
     const failedTransactionData = await getTransaction(client, { hash })
+    console.log("🚀 ~ failedTransactionData:", failedTransactionData)
     try {
       await call(client, failedTransactionData as CallParameters<ConfigWithEns>)
       // TODO: better errors for this

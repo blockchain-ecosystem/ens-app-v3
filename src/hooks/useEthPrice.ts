@@ -3,7 +3,7 @@ import { useChainId, useReadContract } from 'wagmi'
 
 import { useAddressRecord } from './ensjs/public/useAddressRecord'
 
-const ORACLE_ENS = 'eth-usd.data.eth'
+const ORACLE_ENS = 'eth-usd.data.pik'
 
 const ORACLE_CUSTOM = process.env.NEXT_PUBLIC_CONTRACT_DUMMY_ORACLE as `0x${string}`
 
