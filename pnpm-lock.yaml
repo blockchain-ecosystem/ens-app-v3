@@ -122,8 +122,8 @@ importers:
         specifier: 1.2.0-beta.0
         version: 1.2.0-beta.0
       '@ensdomains/ensjs':
-        specifier: 4.0.2
-        version: 4.0.2(typescript@5.7.3)(viem@2.19.4(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1)
+        specifier: workspace:*
+        version: link:.yalc/@ensdomains/ensjs
       '@ensdomains/thorin':
         specifier: 0.6.50
         version: 0.6.50(react-dom@18.3.1(react@18.3.1))(react-transition-state@1.1.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(styled-components@5.3.11(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1))
@@ -473,6 +473,42 @@ importers:
       yalc:
         specifier: ^1.0.0-pre.53
         version: 1.0.0-pre.53
+
+  .yalc/@ensdomains/ensjs:
+    dependencies:
+      '@adraffy/ens-normalize':
+        specifier: 1.10.1
+        version: 1.10.1
+      '@ensdomains/address-encoder':
+        specifier: 1.1.1
+        version: 1.1.1
+      '@ensdomains/content-hash':
+        specifier: 3.1.0-rc.1
+        version: 3.1.0-rc.1
+      '@ensdomains/dnsprovejs':
+        specifier: ^0.5.1
+        version: 0.5.1
+      abitype:
+        specifier: ^1.0.0
+        version: 1.0.5(typescript@5.7.3)(zod@3.24.1)
+      dns-packet:
+        specifier: ^5.3.1
+        version: 5.6.1
+      graphql:
+        specifier: ^16.3.0
+        version: 16.10.0
+      graphql-request:
+        specifier: 6.1.0
+        version: 6.1.0(graphql@16.10.0)
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+      ts-pattern:
+        specifier: ^5.4.0
+        version: 5.6.2
+      viem:
+        specifier: ^2.9.2
+        version: 2.19.4(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
 
 packages:
 
@@ -1322,11 +1358,6 @@ packages:
 
   '@ensdomains/ensjs@2.1.0':
     resolution: {integrity: sha512-GRbGPT8Z/OJMDuxs75U/jUNEC0tbL0aj7/L/QQznGYKm/tiasp+ndLOaoULy9kKJFC0TBByqfFliEHDgoLhyog==}
-
-  '@ensdomains/ensjs@4.0.2':
-    resolution: {integrity: sha512-4vDIZEFAa1doNA3H9MppUHxflSDYYPVNyaDbdHLksTa4taq3y4dGpletX67Xea8nxI+cMfjEi4nOzLJmPzRE/g==}
-    peerDependencies:
-      viem: ^2.9.2
 
   '@ensdomains/headless-web3-provider@1.0.8':
     resolution: {integrity: sha512-whBFtO8i7N2cPW19yJNXjwZpuaGgjdePjAWJThsTpWK5JEc6EGj7Ox3Jcxi8+NtNAt9I5KV5aj94Cn3+cJsplg==}
@@ -3675,17 +3706,6 @@ packages:
 
   abitype@1.0.5:
     resolution: {integrity: sha512-YzDhti7cjlfaBhHutMaboYB21Ha3rXR9QTkNJFzYC4kC8YclaiwPBBBJY8ejFdu2wnJeZCVZSMlQJ7fi8S6hsw==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.22.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-
-  abitype@1.0.8:
-    resolution: {integrity: sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==}
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3 >=3.22.0
@@ -10506,24 +10526,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ensdomains/ensjs@4.0.2(typescript@5.7.3)(viem@2.19.4(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1)':
-    dependencies:
-      '@adraffy/ens-normalize': 1.10.1
-      '@ensdomains/address-encoder': 1.1.1
-      '@ensdomains/content-hash': 3.1.0-rc.1
-      '@ensdomains/dnsprovejs': 0.5.1
-      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.1)
-      dns-packet: 5.6.1
-      graphql: 16.10.0
-      graphql-request: 6.1.0(graphql@16.10.0)
-      pako: 2.1.0
-      ts-pattern: 5.6.2
-      viem: 2.19.4(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
-    transitivePeerDependencies:
-      - encoding
-      - typescript
-      - zod
-
   '@ensdomains/headless-web3-provider@1.0.8(viem@2.19.4(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))':
     dependencies:
       '@metamask/json-rpc-engine': 9.0.3
@@ -11927,7 +11929,7 @@ snapshots:
 
   '@scure/bip32@1.4.0':
     dependencies:
-      '@noble/curves': 1.4.0
+      '@noble/curves': 1.4.2
       '@noble/hashes': 1.4.0
       '@scure/base': 1.1.9
 
@@ -13585,11 +13587,6 @@ snapshots:
   '@xtuc/long@4.2.2': {}
 
   abitype@1.0.5(typescript@5.7.3)(zod@3.24.1):
-    optionalDependencies:
-      typescript: 5.7.3
-      zod: 3.24.1
-
-  abitype@1.0.8(typescript@5.7.3)(zod@3.24.1):
     optionalDependencies:
       typescript: 5.7.3
       zod: 3.24.1
@@ -20131,7 +20128,7 @@ snapshots:
 
   webauthn-p256@0.0.5:
     dependencies:
-      '@noble/curves': 1.4.0
+      '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
 
   webextension-polyfill@0.10.0: {}

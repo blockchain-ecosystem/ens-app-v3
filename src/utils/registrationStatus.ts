@@ -55,6 +55,8 @@ export const getRegistrationStatus = ({
   const isCustomTLD = customTLDs.includes(tld)
 
   if ((isETH || isCustomTLD) && is2LD) {
+    console.log("🚀 ~ isCustomTLD:", isCustomTLD)
+    console.log("🚀 ~ expiryData111:", expiryData)
     if (expiryData && expiryData.expiry) {
       const { expiry: _expiry, gracePeriod } = expiryData
       const expiry = new Date(_expiry.date)
