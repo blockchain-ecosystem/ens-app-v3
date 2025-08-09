@@ -6,6 +6,7 @@ import { addEnsContracts } from '@ensdomains/ensjs'
 import type { Register } from '@app/local-contracts'
 import { addEnsContractsWithSubgraph } from '@app/utils/chains/addEnsContractsWithSubgraph'
 import { makeLocalhostChainWithEns } from '@app/utils/chains/makeLocalhostChainWithEns'
+import { custom } from './customChain'
 
 const isLocalProvider = !!process.env.NEXT_PUBLIC_PROVIDER
 
@@ -19,6 +20,28 @@ export const localhostWithEns = makeLocalhostChainWithEns<typeof localhost>(
 )
 
 const ENS_SUBGRAPH_API_KEY = '9ad5cff64d93ed2c33d1a57b3ec03ea9'
+
+export const customWithEns = {
+  ...custom,
+  contracts: {
+    ...custom.contracts,
+    ensRegistry: custom.contracts.ensRegistry,
+    ensUniversalResolver: custom.contracts.ensUniversalResolver,
+    ensBaseRegistrarImplementation: custom.contracts.ensBaseRegistrarImplementation,
+    ensBulkRenewal: custom.contracts.ensBulkRenewal,
+    ensDnsRegistrar: custom.contracts.ensDnsRegistrar,
+    ensDnssecImpl: custom.contracts.ensDnssecImpl,
+    ensEthRegistrarController: custom.contracts.ensEthRegistrarController,
+    ensNameWrapper: custom.contracts.ensNameWrapper,
+    ensPublicResolver: custom.contracts.ensPublicResolver,
+    ensReverseRegistrar: custom.contracts.ensReverseRegistrar,
+  },
+  subgraphs: {
+    ens: {
+      url: process.env.NEXT_PUBLIC_CUSTOM_NETWORK_SUBGRAPH_URL || '',
+    },
+  },
+} as const
 
 export const mainnetWithEns = addEnsContractsWithSubgraph({
   chain: mainnet,
@@ -59,6 +82,7 @@ export const chainsWithEns = [
   sepoliaWithEns,
   holeskyWithEns,
   localhostWithEns,
+  customWithEns,
 ] as const
 
 export const getSupportedChainById = (chainId: number | undefined) =>
@@ -69,6 +93,7 @@ export type SupportedChain =
   | typeof sepoliaWithEns
   | typeof holeskyWithEns
   | typeof localhostWithEns
+  | typeof customWithEns
 
 export const getChainsFromUrl = () => {
   if (typeof window === 'undefined') {
@@ -77,6 +102,7 @@ export const getChainsFromUrl = () => {
       holeskyWithEns,
       mainnetWithEns,
       sepoliaWithEns,
+      customWithEns,
     ]
   }
 
@@ -88,7 +114,7 @@ export const getChainsFromUrl = () => {
   if (chain === 'holesky') return [holeskyWithEns]
   if (chain === 'sepolia') return [sepoliaWithEns]
   if (chain === 'mainnet') return [mainnetWithEns]
-
+  if (chain === 'custom') return [customWithEns]
   // Previews
   if (segments.length === 4) {
     /* Used for testing preview on mainnet at: test.app.ens.domains. Update by configuring dns */
@@ -103,11 +129,12 @@ export const getChainsFromUrl = () => {
   // Dev environment
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     if (isLocalProvider) return [localhostWithEns]
-    return [holeskyWithEns]
+    return [customWithEns]
   }
 
   return match(segments[0])
     .with('sepolia', () => [sepoliaWithEns])
     .with('holesky', () => [holeskyWithEns])
+    .with('custom', () => [customWithEns])
     .otherwise(() => [mainnetWithEns])
 }

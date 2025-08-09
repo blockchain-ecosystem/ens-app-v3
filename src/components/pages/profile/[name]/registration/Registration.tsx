@@ -147,6 +147,7 @@ const Registration = ({ nameDetails, isLoading }: Props) => {
     ethPrice,
     durationType,
   }: RegistrationStepData['pricing']) => {
+    console.debug('[REG] increaseStep from', item.stepIndex)
     sendEvent('register:pricing', {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       ens_name: normalisedName,
@@ -308,7 +309,11 @@ const Registration = ({ nameDetails, isLoading }: Props) => {
         noTitle
         title={beautifiedName}
         hideHeading={step === 'complete'}
-        loading={labelTooLong ? false : isLoading || primary.isLoading || resolverExistsLoading}
+        loading={
+          labelTooLong
+            ? false
+            : (step !== 'pricing' && (isLoading || primary.isLoading || resolverExistsLoading))
+        }
         singleColumnContent
         inlineHeading
       >
@@ -373,7 +378,20 @@ const Registration = ({ nameDetails, isLoading }: Props) => {
                 isMoonpayFlow={item.isMoonpayFlow}
               />
             ))
-            .exhaustive(),
+            .otherwise(() => (
+              <Pricing
+                name={normalisedName}
+                beautifiedName={beautifiedName}
+                gracePeriodEndDate={nameDetails.gracePeriodEndDate}
+                resolverExists={resolverExists}
+                callback={pricingCallback}
+                isPrimaryLoading={primary.isLoading}
+                hasPrimaryName={!!primary.data?.name}
+                registrationData={item}
+                moonpayTransactionStatus={moonpayTransactionStatus}
+                initiateMoonpayRegistrationMutation={initiateMoonpayRegistrationMutation}
+              />
+            )),
         }}
       </Content>
       <Dialog

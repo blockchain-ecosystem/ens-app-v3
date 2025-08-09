@@ -23,6 +23,15 @@ const isLocalProvider = !!process.env.NEXT_PUBLIC_PROVIDER
 const tenderlyKey = process.env.NEXT_PUBLIC_TENDERLY_KEY || '4imxc4hQfRjxrVB2kWKvTo'
 const drpcKey = process.env.NEXT_PUBLIC_DRPC_KEY || 'AnmpasF2C0JBqeAEzxVO8aRuvzLTrWcR75hmDonbV6cR'
 
+export const customUrl = (chainName: string) => {
+  if (chainName === 'custom') {
+    const customNetworkRpc = process.env.NEXT_PUBLIC_CUSTOM_NETWORK_RPC || ''
+    return customNetworkRpc.startsWith('http') ? customNetworkRpc : `http://${customNetworkRpc}`
+  }
+  return ''
+}
+
+
 const tenderlyUrl = (chainName: string) => `https://${chainName}.gateway.tenderly.co/${tenderlyKey}`
 export const drpcUrl = (chainName: string) =>
   `https://lb.drpc.org/ogrpc?network=${
@@ -76,19 +85,20 @@ const localStorageWithInvertMiddleware = (): Storage | undefined => {
   }
 }
 
-export const transports = {
-  ...(isLocalProvider
-    ? ({
-        [localhost.id]: http(process.env.NEXT_PUBLIC_PROVIDER!) as unknown as FallbackTransport,
-      } as const)
-    : ({} as unknown as {
-        // this is a hack to make the types happy, dont remove pls
-        [localhost.id]: HttpTransport
-      })),
-  [mainnet.id]: initialiseTransports('mainnet', [drpcUrl, tenderlyUrl]),
-  [sepolia.id]: initialiseTransports('sepolia', [drpcUrl, tenderlyUrl]),
-  [holesky.id]: initialiseTransports('holesky', [drpcUrl, tenderlyUrl]),
-} as const
+type AnyTransport = ReturnType<typeof http> | ReturnType<typeof fallback>
+
+export const transports: Record<number, AnyTransport> = (() => {
+  const base: Record<number, AnyTransport> = {
+    [mainnet.id]: initialiseTransports('mainnet', [drpcUrl, tenderlyUrl]),
+    [sepolia.id]: initialiseTransports('sepolia', [drpcUrl, tenderlyUrl]),
+    [holesky.id]: initialiseTransports('holesky', [drpcUrl, tenderlyUrl]),
+    [Number(process.env.NEXT_PUBLIC_CUSTOM_NETWORK_CHAIN_ID)]: initialiseTransports('custom', [customUrl]),
+  }
+  if (isLocalProvider) {
+    base[localhost.id] = http(process.env.NEXT_PUBLIC_PROVIDER!)
+  }
+  return base
+})()
 
 // This is a workaround to fix MetaMask defaulting to the wrong transaction type
 // when no type is specified, but an access list is provided.
@@ -154,7 +164,24 @@ const wagmiConfig_ = createConfig({
           wait: 50,
         },
       },
-      transport: (params) => transports[chainId]({ ...params }),
+      transport: (params) => {
+        const base = transports[chain.id]({ ...params }) // instance, KHÔNG cast Transport
+        const wrapped = {
+          ...base,
+          request: async (args: any) => {
+            console.debug('[RPC]', chain.id, args.method, args.params)
+            try {
+              const res = await (base as any).request(args)
+              console.debug('[RPC:OK]', chain.id, args.method, res)
+              return res
+            } catch (e) {
+              console.error('[RPC:ERR]', chain.id, args.method, e)
+              throw e
+            }
+          },
+        }
+        return wrapped as any // trả về instance đã bọc
+      },
       ccipRead: {
         request: ccipRequest(chain),
       },

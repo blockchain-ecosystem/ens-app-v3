@@ -49,7 +49,9 @@
     "subgraph:update": "ens-test-env subgraph --var NEXT_PUBLIC_DEPLOYMENT_ADDRESSES",
     "knip": "knip",
     "knip:fix": "knip --fix --allow-remove-files",
-    "hh": "NODE_OPTIONS='--experimental-loader ts-node/esm/transpile-only' hardhat"
+    "hh": "NODE_OPTIONS='--experimental-loader ts-node/esm/transpile-only' hardhat",
+    "dev:ncustom": "NEXT_PUBLIC_PROVIDER=https://rpc.testnet.hii.network NEXT_PUBLIC_AVUP_ENDPOINT=https://avatar-upload.teknix5947.workers.dev pnpm dev",
+    "dev:gcustom": "rm -rf .next && NEXT_PUBLIC_GRAPH_URI=http://103.69.98.81:8000/subgraphs/name/graphprotocol/ens_eth NEXT_PUBLIC_ETH_NODE=anvil NEXT_PUBLIC_AVUP_ENDPOINT=https://avatar-upload.teknix5947.workers.dev pnpm dev:ncustom"
   },
   "dependencies": {
     "@ensdomains/address-encoder": "1.1.1",

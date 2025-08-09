@@ -55,17 +55,11 @@ export const useEstimateFullRegistration = ({
     [timestampReference],
   )
 
-  const transactions = calculateTransactions({
-    registrationParams,
-    ethRegistrarControllerAddress,
-    legacyEthRegistrarControllerAddress,
-    fiveMinutesAgoInSeconds,
-    price,
-  })
-  const { data, isLoading } = useEstimateGasWithStateOverride({
-    transactions: transactions!,
-    enabled: !!transactions,
-  })
+  const transactions = useMemo(
+    () => calculateTransactions({ registrationParams, ethRegistrarControllerAddress, legacyEthRegistrarControllerAddress, fiveMinutesAgoInSeconds, price }),
+    [registrationParams, ethRegistrarControllerAddress, legacyEthRegistrarControllerAddress, fiveMinutesAgoInSeconds, price],
+  )
+  const { data, isLoading } = useEstimateGasWithStateOverride({ transactions: transactions!, enabled: !!transactions })
 
   const premiumFee = price?.premium
   const hasPremium = !!premiumFee && premiumFee > 0n
@@ -73,6 +67,10 @@ export const useEstimateFullRegistration = ({
     ? deriveYearlyFee({ duration: registrationParams.duration, price })
     : undefined
   const totalDurationBasedFee = price?.base || 0n
+
+  // sau khi có registrationParams, price, addresses, transactions
+  console.debug('[REG]', { registrationParams, price, ethRegistrarControllerAddress, legacyEthRegistrarControllerAddress })
+  console.debug('[REG] txs', transactions?.map(t => t.name))
 
   return {
     estimatedGasFee: data.gasCost,

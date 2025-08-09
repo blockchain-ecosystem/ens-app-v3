@@ -10,7 +10,7 @@ export const useEthPrice = () => {
     name: ORACLE_ENS,
   })
 
-  const address = (address_?.value as Address) || undefined
+  const address = (process.env.NEXT_PUBLIC_CONTRACT_DUMMY_ORACLE as Address) || undefined
 
   return useReadContract({
     abi: [

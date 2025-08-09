@@ -26,6 +26,8 @@ import {
   queryKeyToInternalParams,
 } from '@app/utils/query/match/queryKeyToInternalParams'
 import { useQuery } from '@app/utils/query/useQuery'
+import { SupportedChain } from '@app/constants/chains'
+import { Address } from 'viem'
 
 type UseRecordsParameters<
   TTexts extends readonly string[] | undefined = undefined,
@@ -87,12 +89,36 @@ export const getRecordsQueryFn =
     if (!name) throw new Error('name is required')
 
     const client = config.getClient({ chainId })
-    const res = await getRecords(client, {
-      name,
-      ...params,
-    })
-    if (!res) return null
-    return res as GetRecordsReturnType<TTexts, TCoins, TContentHash, TAbi>
+    const chain = config.chains.find((c) => c.id === chainId) as SupportedChain
+
+    // Lấy gateway từ env (tùy chọn)
+    const gatewayEnv = process.env.NEXT_PUBLIC_CCIP_GATEWAYS || ''
+    const gatewayUrls = gatewayEnv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+
+    // Dùng Public Resolver mặc định, KHÔNG dùng Universal Resolver ở đây
+    const resolver =
+      (params as any).resolver ??
+      (chain?.contracts?.ensPublicResolver?.address as Address | undefined)
+
+    if (!resolver) throw new Error('Missing Public Resolver address for current chain')
+
+    try {
+      const res = await getRecords(client, {
+        name,
+        ...(params as any),
+        resolver,
+        ...(gatewayUrls.length ? { gatewayUrls } : {}),
+      })
+      if (!res) return null
+      return res as GetRecordsReturnType<TTexts, TCoins, TContentHash, TAbi>
+    } catch (e) {
+      // Tránh crash UI nếu chain custom/contract chưa tương thích
+      console.error('getRecords error:', e)
+      return null
+    }
   }
 
 export const matchGetRecordsQueryKeyWithInternalParams =

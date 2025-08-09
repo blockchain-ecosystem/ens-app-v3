@@ -176,11 +176,27 @@ const estimateIndividualGas = async <TName extends TransactionName>({
   // To get the access list, we're executing the bytecode of this Yul code: https://gist.github.com/TateB/777287c9a63d5f02fcd905232ce5748a
   // (note: 0xed3869F3020315C839b2f4E9a73bEbE9a9670534 is replaced with `connectorClient.account.address`)
   // It does a simple transfer, and accesses any storage slot that would be accessed by any other transfer.
-  const accessList = await createAccessList(client, {
-    from: emptyAddress,
-    data: concatHex(['0x5f808080600173', connectorClient.account.address, '0x5af100']),
-    value: '0x1',
-  })
+  const accessListData = concatHex(['0x5f808080600173', connectorClient.account.address, '0x5af100'])
+  let accessList
+  try {
+    accessList = await createAccessList(client, {
+      from: connectorClient.account.address,
+      data: accessListData,
+      value: '0x1',
+    })
+  } catch (e1) {
+    console.warn('[EST] createAccessList retry with value=0', e1)
+    try {
+      accessList = await createAccessList(client, {
+        from: connectorClient.account.address,
+        data: accessListData,
+        value: '0x0',
+      })
+    } catch (e2) {
+      console.warn('[EST] createAccessList fallback to empty', e2)
+      accessList = { accessList: [], gasUsed: '0x0' as Hex }
+    }
+  }
 
   const formattedRequest = formatTransactionRequest({
     ...generatedRequest,
@@ -215,23 +231,14 @@ const estimateIndividualGas = async <TName extends TransactionName>({
     ]),
   )
 
-  return client
-    .request<{
-      Method: 'eth_estimateGas'
-      Parameters:
-        | [transaction: RpcTransactionRequest]
-        | [transaction: RpcTransactionRequest, block: BlockNumber | BlockTag]
-        | [
-            transaction: RpcTransactionRequest,
-            block: BlockNumber | BlockTag,
-            overrides: StateOverride<Hex, Hex>,
-          ]
-      ReturnType: Hex
-    }>({
-      method: 'eth_estimateGas',
-      params: [formattedRequest, 'latest', formattedOverrides],
-    })
-    .then((g) => hexToBigInt(g))
+  try {
+    const g = await client.request({ method: 'eth_estimateGas', params: [formattedRequest, 'latest', formattedOverrides] })
+    return hexToBigInt(g)
+  } catch (e) {
+    console.warn('[EST] override unsupported, fallback 1-param', e)
+    const g = await client.request({ method: 'eth_estimateGas', params: [formattedRequest] })
+    return hexToBigInt(g)
+  }
 }
 
 export const estimateGasWithStateOverrideQueryFn =
@@ -257,19 +264,24 @@ export const estimateGasWithStateOverrideQueryFn =
           }),
     } as ConnectorClientWithEns
 
-    const gasEstimates = await Promise.all(
-      transactions.map((t) =>
-        estimateIndividualGas({
-          ...t,
-          client,
-          connectorClient: connectorClientWithAccount,
+    try {
+      const gasEstimates = await Promise.all(
+        transactions.map(async (t) => {
+          try { return await estimateIndividualGas({ ...t, client, connectorClient: connectorClientWithAccount }) }
+          catch (e) {
+            console.error('[EST] tx estimate error', t.name, e)
+            return 0n
+          }
         }),
-      ),
-    )
+      )
 
-    return {
-      reduced: gasEstimates.reduce((acc, curr) => acc + curr, 0n),
-      gasEstimates,
+      return {
+        reduced: gasEstimates.reduce((acc, curr) => acc + curr, 0n),
+        gasEstimates,
+      }
+    } catch (e) {
+      console.error('[EST] Promise.all error', e)
+      throw e
     }
   }
 
@@ -287,6 +299,7 @@ export const useEstimateGasWithStateOverride = <
   UseEstimateGasWithStateOverrideConfig) => {
   const { data: connectorClient, isLoading: isConnectorLoading } =
     useConnectorClient<ConfigWithEns>()
+  console.debug('[EST] enabled run, connectorLoading?', isConnectorLoading)
 
   const initialOptions = useQueryOptions({
     params,
@@ -300,8 +313,10 @@ export const useEstimateGasWithStateOverride = <
     queryKey: initialOptions.queryKey,
     queryFn: initialOptions.queryFn(connectorClient),
     enabled: enabled && !isConnectorLoading,
+    refetchOnWindowFocus: false,
+    retry: false,
+    staleTime: 15_000,
     gcTime,
-    staleTime,
   })
 
   const query = useQuery(preparedOptions)

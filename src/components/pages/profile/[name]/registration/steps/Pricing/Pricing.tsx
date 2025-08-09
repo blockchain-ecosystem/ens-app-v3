@@ -420,9 +420,12 @@ export const ActionButton = (props: ActionButtonProps) => {
     .with(
       P.when(
         (_props) =>
+          // phải có số dư dạng bigint
           typeof _props.balance?.value !== 'bigint' ||
-          !_props.totalRequiredBalance ||
-          !_props.ethPrice,
+          // chỉ coi là thiếu khi không xác định (undefined), 0n là hợp lệ
+          _props.totalRequiredBalance === undefined ||
+          // chỉ yêu cầu ethPrice khi chọn Moonpay
+          (_props.paymentMethodChoice === PaymentMethod.moonpay && _props.ethPrice === undefined),
       ),
       () => (
         <Button data-testid="next-button" disabled>
@@ -456,7 +459,8 @@ export const ActionButton = (props: ActionButtonProps) => {
       }) => (
         <Button
           data-testid="next-button"
-          onClick={() =>
+          onClick={() => {
+            console.debug('[PRICING] Next click', { paymentMethodChoice, totalRequiredBalance: props.totalRequiredBalance, balance: props.balance?.value })
             callback({
               reverseRecord,
               seconds,
@@ -465,7 +469,7 @@ export const ActionButton = (props: ActionButtonProps) => {
               ethPrice,
               durationType,
             })
-          }
+          }}
           disabled={!paymentMethodChoice}
         >
           {t('action.next', { ns: 'common' })}
@@ -608,23 +612,25 @@ const Pricing = ({
         />
       )}
       <MobileFullWidth>
-        <ActionButton
-          {...{
-            address,
-            hasPendingMoonpayTransaction,
-            hasFailedMoonpayTransaction,
-            paymentMethodChoice,
-            reverseRecord,
-            callback,
-            initiateMoonpayRegistrationMutation,
-            seconds,
-            balance,
-            totalRequiredBalance,
-            estimatedTotal,
-            ethPrice,
-            durationType,
-          }}
-        />
+        <div className="allow-interaction">
+          <ActionButton
+            {...{
+              address,
+              hasPendingMoonpayTransaction,
+              hasFailedMoonpayTransaction,
+              paymentMethodChoice,
+              reverseRecord,
+              callback,
+              initiateMoonpayRegistrationMutation,
+              seconds,
+              balance,
+              totalRequiredBalance,
+              estimatedTotal,
+              ethPrice,
+              durationType,
+            }}
+          />
+        </div>
       </MobileFullWidth>
     </StyledCard>
   )

@@ -63,7 +63,7 @@ const FullInvoice = ({
       },
       {
         label: t('invoice.estimatedNetworkFee'),
-        value: estimatedGasFee,
+        value: estimatedGasFee ?? 0n,
       },
       ...(hasPremium
         ? [
