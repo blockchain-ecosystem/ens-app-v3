@@ -1,7 +1,7 @@
 import { QueryFunctionContext } from '@tanstack/react-query'
 import { CallParameters, getFeeHistory, SendTransactionReturnType } from '@wagmi/core'
 import { Dispatch } from 'react'
-import { Hash, PrepareTransactionRequestRequest, toHex, Transaction } from 'viem'
+import { Hash, Hex, PrepareTransactionRequestRequest, toHex, Transaction } from 'viem'
 import { call, estimateGas, getTransaction, prepareTransactionRequest } from 'viem/actions'
 import { useConnections } from 'wagmi'
 
@@ -103,35 +103,42 @@ export const registrationGasFeeModifier = (gasLimit: bigint, transactionName: Tr
     ? gasLimit + 5000n
     : (gasLimit * CURRENCY_FLUCTUATION_BUFFER_PERCENTAGE) / 100n
 
-export const calculateGasLimit = async ({
-  client,
-  connectorClient,
-  txWithZeroGas,
-  transactionName,
-}: {
-  client: ClientWithEns
-  connectorClient: ConnectorClientWithEns
-  txWithZeroGas: BasicTransactionRequest
-  transactionName: TransactionName
-}) => {
-  const accessListResponse = await createAccessList(client, {
-    to: txWithZeroGas.to,
-    data: txWithZeroGas.data,
-    from: connectorClient.account!.address,
-    value: toHex(txWithZeroGas.value ? txWithZeroGas.value + 1000000n : 0n),
-  })
-
-  const gasEstimate = await estimateGas(client, {
-    ...txWithZeroGas,
-    accessList: accessListResponse.accessList,
-    account: connectorClient.account,
-  })
-
-  return {
-    gasLimit: registrationGasFeeModifier(gasEstimate, transactionName),
-    accessList: accessListResponse.accessList,
-  }
-}
+    export const calculateGasLimit = async ({
+      client,
+      connectorClient,
+      txWithZeroGas,
+      transactionName,
+    }: {
+      client: ClientWithEns
+      connectorClient: ConnectorClientWithEns
+      txWithZeroGas: BasicTransactionRequest
+      transactionName: TransactionName
+    }) => {
+      let accessListResponse
+      try {
+        accessListResponse = await createAccessList(client, {
+          to: txWithZeroGas.to,
+          data: txWithZeroGas.data,
+          from: connectorClient.account!.address,
+          value: toHex(txWithZeroGas.value ?? 0n),
+          blockTag: 'latest',
+        })
+      } catch (e) {
+        console.warn('[TX] createAccessList failed, fallback', e)
+        accessListResponse = { accessList: [], gasUsed: '0x0' as Hex }
+      }
+    
+      const gasEstimate = await estimateGas(client, {
+        ...txWithZeroGas,
+        accessList: accessListResponse.accessList,
+        account: connectorClient.account,
+      })
+    
+      return {
+        gasLimit: registrationGasFeeModifier(gasEstimate, transactionName),
+        accessList: accessListResponse.accessList,
+      }
+    }
 
 const defaultMaxPriorityFeePerGas = 5000000000n
 export const getLargestMedianGasFee = async () => {

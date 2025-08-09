@@ -107,9 +107,18 @@ const reducer = (state: RegistrationReducerData, action: RegistrationReducerActi
     }
     case 'setQueue': {
       item.queue = action.payload
+      // Đảm bảo stepIndex không vượt quá độ dài queue mới
+      if (item.stepIndex < 0 || item.stepIndex >= item.queue.length) {
+        item.stepIndex = 0
+      }
       break
     }
     case 'decreaseStep': {
+      // Chuẩn hóa stepIndex trước khi giảm
+      if (item.stepIndex < 0 || item.stepIndex >= item.queue.length) {
+        item.stepIndex = 0
+        break
+      }
       sendEvent('register:back', {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         ens_name: item.name,
@@ -123,6 +132,10 @@ const reducer = (state: RegistrationReducerData, action: RegistrationReducerActi
       break
     }
     case 'increaseStep': {
+      // Chuẩn hóa stepIndex trước khi tăng (nếu out-of-range thì đưa về 0 để Next chuyển sang bước 1)
+      if (item.stepIndex < 0 || item.stepIndex >= item.queue.length) {
+        item.stepIndex = 0
+      }
       if (item.queue[item.stepIndex + 1] === 'complete') {
         sendEvent('register:complete', {
           // eslint-disable-next-line @typescript-eslint/naming-convention
