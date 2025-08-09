@@ -89,14 +89,44 @@ export async function waitForTransaction(
     const txn = await getTransaction(client, {
       hash: receipt.transactionHash,
     })
-    const code = (await call(client, {
-      ...txn,
-      gasPrice: txn.type !== 'eip1559' ? txn.gasPrice : undefined,
-      maxFeePerGas: txn.type === 'eip1559' ? txn.maxFeePerGas : undefined,
-      maxPriorityFeePerGas: txn.type === 'eip1559' ? txn.maxPriorityFeePerGas : undefined,
-    } as CallParameters)) as unknown as string
-    const reason = hexToString(`0x${code.substring(138)}`)
-    throw new Error(reason)
+    // Gọi eth_call an toàn để lấy lý do revert
+    try {
+      const code = (await call(client, {
+        to: txn.to!,
+        data: (txn as any).input ?? (txn as any).data, // client có thể trả 'input'
+        from: txn.from as any,
+        gas: txn.gas,
+        // nhiều RPC custom đòi 'latest'
+        blockTag: 'latest',
+        // thử giữ nguyên value trước
+        value: txn.value,
+        gasPrice: txn.type !== 'eip1559' ? txn.gasPrice : undefined,
+        maxFeePerGas: txn.type === 'eip1559' ? txn.maxFeePerGas : undefined,
+        maxPriorityFeePerGas: txn.type === 'eip1559' ? txn.maxPriorityFeePerGas : undefined,
+      } as CallParameters)) as unknown as string
+      const reason = hexToString(`0x${code.substring(138)}`)
+      throw new Error(reason)
+    } catch (e1) {
+      // Fallback: đặt value=0 để tránh RPC check số dư
+      try {
+        const code = (await call(client, {
+          to: txn.to!,
+          data: (txn as any).input ?? (txn as any).data,
+          from: txn.from as any,
+          gas: txn.gas,
+          blockTag: 'latest',
+          value: undefined,
+          gasPrice: txn.type !== 'eip1559' ? txn.gasPrice : undefined,
+          maxFeePerGas: txn.type === 'eip1559' ? txn.maxFeePerGas : undefined,
+          maxPriorityFeePerGas: txn.type === 'eip1559' ? txn.maxPriorityFeePerGas : undefined,
+        } as CallParameters)) as unknown as string
+        const reason = hexToString(`0x${code.substring(138)}`)
+        throw new Error(reason)
+      } catch {
+        // Cuối cùng: không trích được lý do rõ ràng
+        throw new Error('transaction reverted')
+      }
+    }
   } else if (isSafeTx) {
     onReplaced?.({
       reason: 'repriced',

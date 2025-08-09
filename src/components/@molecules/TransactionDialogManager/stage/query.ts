@@ -1,7 +1,7 @@
 import { QueryFunctionContext } from '@tanstack/react-query'
 import { CallParameters, getFeeHistory, SendTransactionReturnType } from '@wagmi/core'
 import { Dispatch } from 'react'
-import { Hash, Hex, PrepareTransactionRequestRequest, toHex, Transaction } from 'viem'
+import { Hash, Hex, PrepareTransactionRequestRequest, toHex, Transaction, Address } from 'viem'
 import { call, estimateGas, getTransaction, prepareTransactionRequest } from 'viem/actions'
 import { useConnections } from 'wagmi'
 
@@ -128,11 +128,17 @@ export const registrationGasFeeModifier = (gasLimit: bigint, transactionName: Tr
         accessListResponse = { accessList: [], gasUsed: '0x0' as Hex }
       }
     
-      const gasEstimate = await estimateGas(client, {
-        ...txWithZeroGas,
-        accessList: accessListResponse.accessList,
-        account: connectorClient.account,
-      })
+      let gasEstimate: bigint
+      try {
+        gasEstimate = await estimateGas(client, {
+          ...txWithZeroGas,
+          accessList: accessListResponse.accessList,
+          account: connectorClient.account,
+        })
+      } catch (e) {
+        console.warn('[TX] estimateGas failed, fallback', e)
+        gasEstimate = transactionName === 'registerName' ? 700_000n : 200_000n
+      }
     
       return {
         gasLimit: registrationGasFeeModifier(gasEstimate, transactionName),
@@ -210,21 +216,38 @@ export const createTransactionRequestUnsafe = async ({
     largestMedianGasFee = await getLargestMedianGasFee()
   }
 
-  const request = await prepareTransactionRequest(client, {
-    to: transactionRequest.to,
-    accessList,
-    account: connectorClient.account,
-    data: transactionRequest.data,
-    gas: gasLimit,
-    parameters: ['fees', 'nonce', 'type'],
-    ...('value' in transactionRequest ? { value: transactionRequest.value } : {}),
-    ...(isParaConnected ? { maxPriorityFeePerGas: largestMedianGasFee } : {}),
-  })
+  let request
+  try {
+    request = await prepareTransactionRequest(client, {
+      to: transactionRequest.to,
+      accessList,
+      account: connectorClient.account,
+      data: transactionRequest.data,
+      gas: gasLimit,
+      parameters: ['fees', 'nonce', 'type'],
+      ...('value' in transactionRequest ? { value: transactionRequest.value } : {}),
+      ...(isParaConnected ? { maxPriorityFeePerGas: largestMedianGasFee } : {}),
+    })
+  } catch (e) {
+    console.warn('[TX] prepareTransactionRequest failed, fallback minimal request', e)
+    request = {
+      to: transactionRequest.to,
+      accessList,
+      account: connectorClient.account,
+      data: transactionRequest.data,
+      gas: gasLimit,
+      ...('value' in transactionRequest ? { value: transactionRequest.value } : {}),
+      chain: client.chain!,
+      type: 'eip1559',
+    } as any
+  }
 
   if (connectorIsMetaMask(connections, connectorClient)) {
     ;(request as any).__is_metamask = true
   } else if (connectorIsPhantom(connections, connectorClient)) {
-    request.accessList = request.accessList?.map((v) => [v.address, v.storageKeys]) as any
+    request.accessList = request.accessList?.map(
+      ({ address, storageKeys }: { address: Address; storageKeys: Hex[] }) => [address, storageKeys],
+    ) as any
   }
 
   return {
